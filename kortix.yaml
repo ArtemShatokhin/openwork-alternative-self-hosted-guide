@@ -1,0 +1,81 @@
+# Kortix is open source (Elastic License 2.0): read and modify the code you run.
+# This manifest drives a self-hosted Kortix deployment. The platform reads it;
+# the agent harness reads the files it names under agents/, skills/ and harnesses/.
+kortix_version: 2
+default_agent: ops
+
+project:
+  name: self-hosted-guide
+  description: "Self-hosting guide for the open-source Kortix AI Management System."
+
+env:
+  required:
+    - DAYTONA_API_KEY
+  optional:
+    - ANTHROPIC_API_KEY
+    - OPENAI_API_KEY
+    - OPENROUTER_API_KEY
+    - GITHUB_TOKEN
+
+sandbox:
+  default: base
+  templates:
+    - slug: base
+      name: Base self-host operator
+      dockerfile: Dockerfile
+      cpu: 2
+      memory: 4
+    - slug: heavy
+      name: Heavy migration and backup checks
+      dockerfile: Dockerfile.heavy
+      cpu: 4
+      memory: 16
+
+opencode:
+  config_dir: harnesses/opencode
+
+# Connectors are declared once and granted per agent. Credentials are brokered
+# server-side and never enter the session machine.
+connectors:
+  - slug: github
+    provider: composio
+    app: github
+  - slug: slack
+    provider: composio
+    app: slack
+
+agents:
+  ops:
+    file: agents/ops.md
+    sandbox: base
+    connectors: [github, slack]
+    secrets: [DAYTONA_API_KEY, GITHUB_TOKEN]
+    kortix_permissions:
+      - project.read
+      - project.session.read
+      - project.session.start
+      - project.gitops.read
+    skills: [self-host-check]
+
+triggers:
+  - slug: nightly-self-host-check
+    name: Nightly self-host check
+    type: cron
+    agent: ops
+    enabled: true
+    cron: "0 3 * * *"
+    timezone: UTC
+    prompt: |-
+      Run the self-host-check skill against this instance. Report stack status,
+      the sandbox provider key, and the model providers in use. If a check
+      fails, write the diagnosis to reports/self-host.md and open a change
+      request against main. Do not restart the stack yourself.
+
+  - slug: on-ship-verify
+    name: Verify after a ship
+    type: webhook
+    agent: ops
+    enabled: false
+    prompt: |-
+      A new revision shipped. Confirm the instance is healthy with the
+      self-host-check skill and comment the result on the change request.
