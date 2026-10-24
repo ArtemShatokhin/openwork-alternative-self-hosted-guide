@@ -1,6 +1,6 @@
-# OpenWork alternative: self-host the open-source Kortix AI Management System
+# OpenWork alternative: self-host the open-source Kortix AI Operating System
 
-Kortix is the open-source AI Management System, and this repository is a working guide to self-hosting it as an OpenWork alternative. Kortix is open source, so you can read and modify the code you run.
+Kortix is the open-source AI Operating System, and this repository is a working guide to self-hosting it as an OpenWork alternative. Kortix is open source, so you can read and modify the code you run.
 
 OpenWork is a desktop app for sharing AI workflows across agents. Kortix is the platform a company runs on: agents, skills, company memory, connector configuration and triggers all live as files in one git repo you own. This repo holds the manifest, the agent, the self-host check and the commands to bring that platform up on hardware you control.
 
@@ -65,4 +65,4 @@ Full setup, session attachment and change-request review are in [docs/kortix-set
 
 ## Licence
 
-Kortix is open source (Elastic License 2.0) — self-host, read and modify the code.
+Kortix is open source — self-host, read and modify the code.
